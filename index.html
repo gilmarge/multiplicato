@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplicat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+<style>
+  @keyframes score-bounce {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.4); }
+    60% { transform: scale(0.9); }
+    80% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  .animate-score-bounce {
+    animation: score-bounce 0.6s ease-in-out;
+  }
+  @keyframes draw-line {
+    from {
+      stroke-dashoffset: 1000;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .animate-draw-line {
+    stroke-dasharray: 1000;
+    animation: draw-line 0.8s ease-out forwards;
+  }
+  @keyframes fade-in-down {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-down {
+    animation: fade-in-down 0.5s ease-out forwards;
+  }
+  @keyframes pulse-highlight {
+    0%, 100% {
+      transform: scale(1.05);
+    }
+    50% {
+      transform: scale(1.15);
+    }
+  }
+  .animate-pulse-highlight {
+    animation: pulse-highlight 0.8s ease-in-out 2;
+    z-index: 10;
+  }
+  @keyframes score-popup-animation {
+    0% {
+      opacity: 0;
+      transform: translateY(0) scale(0.5);
+    }
+    20%, 80% {
+      opacity: 1;
+      transform: translateY(-20px) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-40px) scale(0.8);
+    }
+  }
+  .animate-score-popup {
+    animation: score-popup-animation 2s ease-out forwards;
+  }
+  @keyframes pulse-line {
+    0%, 100% {
+      stroke-width: 10;
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+    }
+    50% {
+      stroke-width: 14;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+    }
+  }
+  .animate-pulse-line {
+    animation: pulse-line 0.8s ease-in-out 2;
+    animation-delay: 0.5s; /* Delay to let the drawing animation start */
+  }
+  @keyframes pulse-ring-opacity {
+    0%, 100% {
+      --tw-ring-opacity: 0.5;
+    }
+    50% {
+      --tw-ring-opacity: 1;
+    }
+  }
+  .animate-pulse-ring {
+    animation: pulse-ring-opacity 2s infinite ease-in-out;
+  }
+  @keyframes flash-red {
+      0%, 100% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); /* red-500 with 0 opacity */
+      }
+      50% {
+          box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.6); /* red-500 with some opacity */
+      }
+  }
+  .animate-flash-red {
+      animation: flash-red 0.8s ease-out 2;
+  }
+</style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-100 dark:bg-slate-900">
+    <div id="root"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
