@@ -1137,23 +1137,30 @@ const App = () => {
     };
     const handleSubmitFactor = useCallback((factor2) => {
         if (!selectedCell || !attackingFactor || !defender) return;
+        
         const { r, c } = selectedCell;
         const numberToSolve = board[r][c].number;
         const isCorrect = attackingFactor * factor2 === numberToSolve;
+        
         setIsFactorModalOpen(false);
-        const oldScores = { ...scores };
+
         const oldLines = findWinningLines(board);
+
         if (isCorrect) {
             const newBoard = JSON.parse(JSON.stringify(board));
             newBoard[r][c].owner = defender;
             setBoard(newBoard);
+            
             setMoves(prev => [...prev, { player: defender, number: numberToSolve, factor1: attackingFactor, factor2 }]);
-            const newScores = calculateScores(newBoard);
+            
+            const oldLineScores = calculateScores(board);
+            const newLineScores = calculateScores(newBoard);
             const newLines = findWinningLines(newBoard);
             setWinningLines(newLines);
-            let scoreDelta = newScores[defender] - oldScores[defender];
-            scoreDelta += 1;
-            const totalPointsGained = scoreDelta;
+            
+            const lineScoreDelta = newLineScores[defender] - (oldLineScores[defender] || 0);
+            const totalPointsGained = lineScoreDelta + 1; // +1 for correct answer
+            
             if (totalPointsGained > 0) {
                  setScorePopup({ points: totalPointsGained, r, c, key: Date.now() });
                  const oldLineKeys = new Set(oldLines.map(l => `${l.player}-${l.coords[0].r},${l.coords[0].c}-${l.coords[l.coords.length-1].r},${l.coords[l.coords.length-1].c}`));
@@ -1163,12 +1170,14 @@ const App = () => {
                  });
                  setHighlightedLines(newlyFormedLines);
             }
+            
             setScores(prev => ({ ...prev, [defender]: prev[defender] + totalPointsGained }));
         } else {
             setScores(prev => ({ ...prev, [defender]: Math.max(0, prev[defender] - 1) }));
             setIncorrectCell({r, c});
             setTimeout(() => setIncorrectCell(null), 1000);
         }
+
         setTimeout(() => nextTurn(), 1500);
     }, [selectedCell, attackingFactor, defender, board, scores, nextTurn]);
     const handlePrint = () => {
