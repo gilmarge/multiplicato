@@ -1,6 +1,6 @@
 import React from 'react';
-import { WinningLine } from '../types';
-import { PLAYER_COLORS } from '../constants';
+import { WinningLine } from '../types.ts';
+import { PLAYER_COLORS } from '../constants.ts';
 
 interface WinningLinesOverlayProps {
   lines: WinningLine[];

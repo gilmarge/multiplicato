@@ -8,24 +8,24 @@ import {
   Move,
   WinningLine,
   PlayerConfig,
-} from './types';
+} from './types.ts';
 import {
   generateBoard,
   calculateBonusForMove,
   findWinningLines,
   aiSelectFactor,
   findBestAiMove,
-} from './utils';
-import { LEVEL_CONFIG } from './constants';
+} from './utils.ts';
+import { LEVEL_CONFIG } from './constants.ts';
 
-import GameBoardComponent from './components/GameBoard';
-import PlayerPanel from './components/PlayerPanel';
-import FactorModal from './components/FactorModal';
-import RulesModal from './components/RulesModal';
-import GameControls from './components/GameControls';
-import AiControlModal from './components/AiControlModal';
-import PrintableGrid from './components/PrintableGrid';
-import FlyingPoint from './components/FlyingPoint';
+import GameBoardComponent from './components/GameBoard.tsx';
+import PlayerPanel from './components/PlayerPanel.tsx';
+import FactorModal from './components/FactorModal.tsx';
+import RulesModal from './components/RulesModal.tsx';
+import GameControls from './components/GameControls.tsx';
+import AiControlModal from './components/AiControlModal.tsx';
+import PrintableGrid from './components/PrintableGrid.tsx';
+import FlyingPoint from './components/FlyingPoint.tsx';
 
 declare global {
   interface Window {

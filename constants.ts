@@ -1,4 +1,4 @@
-import { Player } from './types';
+import { Player } from './types.ts';
 
 export const PLAYER_COLORS: Record<Player, { base: string; text: string; ring: string }> = {
   Rouge: { base: 'bg-red-500', text: 'text-red-500', ring: 'ring-red-500' },

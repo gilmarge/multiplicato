@@ -1,7 +1,7 @@
 import React from 'react';
-import { Player, Move, Role } from '../types';
-import { PLAYER_COLORS } from '../constants';
-import AnimatedScore from './AnimatedScore';
+import { Player, Move, Role } from '../types.ts';
+import { PLAYER_COLORS } from '../constants.ts';
+import AnimatedScore from './AnimatedScore.tsx';
 
 interface PlayerPanelProps {
   player: Player;

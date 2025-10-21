@@ -1,8 +1,8 @@
 import React, { useLayoutEffect, useRef, useState, useCallback, useEffect } from 'react';
-import { GameBoard as GameBoardType, Player, WinningLine } from '../types';
-import { PLAYER_COLORS } from '../constants';
-import WinningLinesOverlay from './WinningLinesOverlay';
-import ScorePopup from './ScorePopup';
+import { GameBoard as GameBoardType, Player, WinningLine } from '../types.ts';
+import { PLAYER_COLORS } from '../constants.ts';
+import WinningLinesOverlay from './WinningLinesOverlay.tsx';
+import ScorePopup from './ScorePopup.tsx';
 
 interface GameBoardProps {
   board: GameBoardType;

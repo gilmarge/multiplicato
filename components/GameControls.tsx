@@ -1,6 +1,6 @@
 import React from 'react';
-import { GameLevel } from '../types';
-import { LEVEL_CONFIG } from '../constants';
+import { GameLevel } from '../types.ts';
+import { LEVEL_CONFIG } from '../constants.ts';
 
 interface GameControlsProps {
   numPlayers: number;

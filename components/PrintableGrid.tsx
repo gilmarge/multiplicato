@@ -1,6 +1,6 @@
 import React from 'react';
-import { GameBoard, Player } from '../types';
-import { LEVEL_CONFIG, POINTS_MAP } from '../constants';
+import { GameBoard, Player } from '../types.ts';
+import { LEVEL_CONFIG, POINTS_MAP } from '../constants.ts';
 
 interface PrintableGridProps {
   board: GameBoard;

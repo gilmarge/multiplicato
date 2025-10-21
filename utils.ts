@@ -1,5 +1,5 @@
-import { GameBoard, GameLevel, Player, Scores, CellData, WinningLine, Coordinate, AiMove, AiDifficulty } from './types';
-import { LEVEL_CONFIG, POINTS_MAP } from './constants';
+import { GameBoard, GameLevel, Player, Scores, CellData, WinningLine, Coordinate, AiMove, AiDifficulty } from './types.ts';
+import { LEVEL_CONFIG, POINTS_MAP } from './constants.ts';
 
 export const generateBoard = (level: GameLevel, gridSize: number, numPlayers: number): GameBoard => {
   let { attackerRange, defenderRange } = { ...LEVEL_CONFIG[level] };

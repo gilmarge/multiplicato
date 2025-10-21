@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Player, PlayerConfig, AiDifficulty } from '../types';
+import { Player, PlayerConfig, AiDifficulty } from '../types.ts';
 
 interface AiControlModalProps {
   isOpen: boolean;
