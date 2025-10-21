@@ -34,14 +34,16 @@ const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
             <ul className="list-disc list-inside mt-2 space-y-2 pl-4">
               <li><strong>Bonne réponse :</strong> Placer un jeton sur la grille rapporte <strong>1 point</strong>.</li>
               <li><strong>Mauvaise réponse :</strong> Une mauvaise réponse coûte <strong>1 point</strong>.</li>
-              <li><strong>Points d'alignement :</strong> Des points supplémentaires sont accordés pour la création ou l'extension de lignes. La valeur totale de chaque alignement est :
+              <li><strong>Points d'alignement :</strong> En plus du point pour la bonne réponse, vous gagnez des points bonus pour chaque ligne que vous créez ou agrandissez :
                 <ul className="list-['-_'] list-inside ml-6 mt-1 space-y-1">
-                    <li>Ligne de 3 : <strong>1 point</strong></li>
-                    <li>Ligne de 4 : <strong>3 points</strong></li>
-                    <li>Ligne de 5 : <strong>10 points</strong></li>
+                    <li>Ligne de 3 : <strong>+1 point bonus</strong></li>
+                    <li>Ligne de 4 : <strong>+3 points bonus</strong></li>
+                    <li>Ligne de 5 : <strong>+5 points bonus</strong></li>
+                    <li>Ligne de 6 : <strong>+7 points bonus</strong> (3 joueurs)</li>
+                    <li>Ligne de 7 : <strong>+10 points bonus</strong> (3 joueurs)</li>
                 </ul>
               </li>
-               <li className="pt-1"><small><em>Note : Si vous étendez une ligne (ex: de 3 à 4), vous gagnez la différence de points (ici, 3 - 1 = 2 points bonus).</em></small></li>
+               <li className="pt-1"><small><em>Note : Vous recevez le bonus complet pour chaque ligne que vous créez ou allongez. Si une seule pièce complète plusieurs lignes à la fois, vous cumulez les points des deux lignes !</em></small></li>
             </ul>
           </div>
           

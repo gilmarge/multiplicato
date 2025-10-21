@@ -11,7 +11,7 @@ import {
 } from './types';
 import {
   generateBoard,
-  calculateScores,
+  calculateBonusForMove,
   findWinningLines,
   aiSelectFactor,
   findBestAiMove,
@@ -19,19 +19,27 @@ import {
 import { LEVEL_CONFIG } from './constants';
 
 import GameBoardComponent from './components/GameBoard';
-import ScoreBoard from './components/ScoreBoard';
 import PlayerPanel from './components/PlayerPanel';
 import FactorModal from './components/FactorModal';
 import RulesModal from './components/RulesModal';
 import GameControls from './components/GameControls';
 import AiControlModal from './components/AiControlModal';
 import PrintableGrid from './components/PrintableGrid';
+import FlyingPoint from './components/FlyingPoint';
 
 declare global {
   interface Window {
     jspdf: any;
     html2canvas: any;
   }
+}
+
+interface FlyingPointState {
+    id: string;
+    from: { x: number; y: number };
+    to: { x: number; y: number };
+    delay: number;
+    onComplete: (id: string) => void;
 }
 
 const App: React.FC = () => {
@@ -61,10 +69,23 @@ const App: React.FC = () => {
     const [scorePopup, setScorePopup] = useState<{ points: number; r: number; c: number; key: number } | null>(null);
     const [incorrectCell, setIncorrectCell] = useState<{ r: number; c: number } | null>(null);
     const [highlightedLines, setHighlightedLines] = useState<WinningLine[]>([]);
+    const [flyingPoints, setFlyingPoints] = useState<FlyingPointState[]>([]);
     
     // Print State
     const [boardForPrint, setBoardForPrint] = useState<GameBoardType | null>(null);
     const printContainerRef = useRef<HTMLDivElement>(null);
+
+    // Refs for animation
+    const playerScoreRefs = {
+        Rouge: useRef<HTMLSpanElement>(null),
+        Bleu: useRef<HTMLSpanElement>(null),
+        Vert: useRef<HTMLSpanElement>(null),
+    };
+    const gameBoardRef = useRef<HTMLDivElement>(null);
+    const gridUtilsRef = useRef<{
+        positioner: (r: number, c: number) => { top: number; left: number };
+        cellSize: number;
+    } | null>(null);
 
     // Player Configuration
     const [playerConfigs, setPlayerConfigs] = useState<Record<Player, PlayerConfig>>({
@@ -74,13 +95,39 @@ const App: React.FC = () => {
     });
 
     const levelConfig = useMemo(() => LEVEL_CONFIG[gameLevel], [gameLevel]);
+
     const availableFactors = useMemo(() => {
-        const factors = [];
-        for (let i = levelConfig.attackerRange.min; i <= levelConfig.attackerRange.max; i++) {
-            factors.push(i);
+        const { attackerRange, defenderRange } = levelConfig;
+        const allFactors = [];
+        for (let i = attackerRange.min; i <= attackerRange.max; i++) {
+            allFactors.push(i);
         }
-        return factors;
-    }, [levelConfig]);
+
+        if (gameState !== 'playing' || board.length === 0) {
+            return allFactors;
+        }
+
+        const validFactors = [];
+        for (const factor1 of allFactors) {
+            let isFactorPlayable = false;
+            for (const row of board) {
+                for (const cell of row) {
+                    if (cell.owner === null && cell.number > 0 && cell.number % factor1 === 0) {
+                        const factor2 = cell.number / factor1;
+                        if (factor2 >= defenderRange.min && factor2 <= defenderRange.max) {
+                            isFactorPlayable = true;
+                            break; 
+                        }
+                    }
+                }
+                if (isFactorPlayable) break;
+            }
+            if (isFactorPlayable) {
+                validFactors.push(factor1);
+            }
+        }
+        return validFactors;
+    }, [levelConfig, board, gameState]);
     
     useEffect(() => {
         setGridSize(numPlayers === 2 ? 5 : 7);
@@ -112,6 +159,7 @@ const App: React.FC = () => {
         setGameLevel(level);
         setGridSize(size);
         setBoard(generateBoard(level, size, num));
+        setScores({ Rouge: 0, Bleu: 0, Vert: 0 });
         setGameState('playing');
         setupRoles(0);
     };
@@ -157,43 +205,80 @@ const App: React.FC = () => {
 
     const handleSubmitFactor = useCallback((factor2: number) => {
         if (!selectedCell || !attackingFactor || !defender) return;
-        
+
         const { r, c } = selectedCell;
         const numberToSolve = board[r][c].number;
         const isCorrect = attackingFactor * factor2 === numberToSolve;
         
         setIsFactorModalOpen(false);
 
-        const oldScores = { ...scores };
-        const oldLines = findWinningLines(board);
-
         if (isCorrect) {
-            const newBoard = JSON.parse(JSON.stringify(board));
+            const oldBoard = board;
+            const newBoard = JSON.parse(JSON.stringify(oldBoard));
             newBoard[r][c].owner = defender;
             setBoard(newBoard);
             
             setMoves(prev => [...prev, { player: defender, number: numberToSolve, factor1: attackingFactor, factor2 }]);
             
-            const newScores = calculateScores(newBoard);
+            const bonusPoints = calculateBonusForMove(newBoard, r, c, defender);
+            const pointsForCorrectAnswer = 1;
+            const totalPointsGained = bonusPoints + pointsForCorrectAnswer;
+
+            const oldLines = findWinningLines(oldBoard);
             const newLines = findWinningLines(newBoard);
             setWinningLines(newLines);
             
-            let scoreDelta = newScores[defender] - oldScores[defender];
-            scoreDelta += 1; // 1 point for correct answer
-
-            const totalPointsGained = scoreDelta;
-            
             if (totalPointsGained > 0) {
-                 setScorePopup({ points: totalPointsGained, r, c, key: Date.now() });
-                 const oldLineKeys = new Set(oldLines.map(l => `${l.player}-${l.coords[0].r},${l.coords[0].c}-${l.coords[l.coords.length-1].r},${l.coords[l.coords.length-1].c}`));
+                setScores(prev => ({ ...prev, [defender]: prev[defender] + totalPointsGained }));
+
+                setScorePopup({ points: totalPointsGained, r, c, key: Date.now() });
+                 
+                 const defenderScoreEl = playerScoreRefs[defender]?.current;
+                 const gridEl = gameBoardRef.current;
+                 const gridUtils = gridUtilsRef.current;
+
+                 if (defenderScoreEl && gridEl && gridUtils) {
+                    const sourcePos = gridUtils.positioner(r, c);
+                    const gridRect = gridEl.getBoundingClientRect();
+                    const destRect = defenderScoreEl.getBoundingClientRect();
+                    
+                    const startX = gridRect.left + sourcePos.left + (gridUtils.cellSize / 2);
+                    const startY = gridRect.top + sourcePos.top + (gridUtils.cellSize / 2);
+                    const endX = destRect.left + destRect.width / 2;
+                    const endY = destRect.top + destRect.height / 2;
+                    
+                    const newPoints = Array.from({ length: totalPointsGained }).map((_, i) => {
+                       const pointId = `${Date.now()}-${i}`;
+                       return {
+                         id: pointId,
+                         from: { x: startX, y: startY },
+                         to: { x: endX, y: endY },
+                         delay: i * 200,
+                         onComplete: (id: string) => {
+                            setFlyingPoints(current => current.filter(p => p.id !== id));
+                         }
+                       };
+                    });
+                    setFlyingPoints(current => [...current, ...newPoints]);
+                 }
+                
+                const generateLineKey = (line: WinningLine): string => {
+                    const start = line.coords[0];
+                    const end = line.coords[line.coords.length - 1];
+                    const coord1Str = `${start.r},${start.c}`;
+                    const coord2Str = `${end.r},${end.c}`;
+                    const sortedCoords = [coord1Str, coord2Str].sort();
+                    return `${line.player}:${sortedCoords[0]}:${sortedCoords[1]}`;
+                };
+
+                 const oldLineKeys = new Set(oldLines.map(generateLineKey));
                  const newlyFormedLines = newLines.filter(l => {
-                    const key = `${l.player}-${l.coords[0].r},${l.coords[0].c}-${l.coords[l.coords.length-1].r},${l.coords[l.coords.length-1].c}`;
-                    return !oldLineKeys.has(key) && l.player === defender;
+                    if (l.player !== defender) return false;
+                    const key = generateLineKey(l);
+                    return !oldLineKeys.has(key);
                  });
                  setHighlightedLines(newlyFormedLines);
             }
-            
-            setScores(prev => ({ ...prev, [defender]: prev[defender] + totalPointsGained }));
         } else {
             setScores(prev => ({ ...prev, [defender]: Math.max(0, prev[defender] - 1) }));
             setIncorrectCell({r, c});
@@ -201,7 +286,7 @@ const App: React.FC = () => {
         }
 
         setTimeout(() => nextTurn(), 1500);
-    }, [selectedCell, attackingFactor, defender, board, scores, nextTurn]);
+    }, [selectedCell, attackingFactor, defender, board, nextTurn]);
     
     // --- Print Logic ---
     const handlePrint = () => {
@@ -247,17 +332,27 @@ const App: React.FC = () => {
     }, [boardForPrint]);
 
 
-    // --- AI LOGIC ---
+    // --- AI & Turn Management LOGIC ---
     useEffect(() => {
         if (gameState !== 'playing') return;
 
+        // 1. Check if the current attacker has any moves. If not, skip their turn.
+        if (attacker && !attackingFactor && availableFactors.length === 0) {
+            console.warn(`Attacker ${attacker} has no playable factors. Skipping turn.`);
+            const skipTurnTimer = setTimeout(() => {
+                nextTurn();
+            }, 2000);
+            return () => clearTimeout(skipTurnTimer);
+        }
+
+        // 2. If moves are possible, let the AI play if it's its turn.
         const handleAiTurn = async () => {
-            // AI Attacker
+            // AI Attacker: only runs if availableFactors is NOT empty
             if (attacker && playerConfigs[attacker].isAi && !attackingFactor) {
                 await new Promise(res => setTimeout(res, 1000));
                 const factor = aiSelectFactor(availableFactors);
                 setAttackingFactor(factor);
-                return; // Let the effect re-run for defender
+                return;
             }
 
             // AI Defender
@@ -271,7 +366,8 @@ const App: React.FC = () => {
                     await new Promise(res => setTimeout(res, 500));
                     handleSubmitFactor(bestMove.factor2);
                 } else {
-                    // No valid moves, pass turn
+                    // This case should be rare now, but as a fallback, pass turn.
+                    console.error("AI Defender found no valid moves, but should have. Skipping turn.");
                     nextTurn();
                 }
             }
@@ -288,7 +384,7 @@ const App: React.FC = () => {
                 <div className="w-full max-w-4xl mx-auto space-y-8">
                    <div className="text-center">
                         <h1 className="text-5xl font-extrabold text-slate-900 dark:text-white">Multiplicat</h1>
-                        <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">Le jeu de calcul pour maîtriser les multiplications !</p>
+                        <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">Un jeu pour apprendre les tables de multiplication</p>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8 items-start">
@@ -364,14 +460,8 @@ const App: React.FC = () => {
 
     // --- Gameplay UI ---
     return (
-        <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-6">
-                <ScoreBoard
-                    scores={scores}
-                    players={players}
-                    currentPlayer={attacker}
-                    onNewGame={handleNewGame}
-                />
+        <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 sm:p-6 lg:p-8 flex flex-col">
+            <main className="max-w-7xl mx-auto w-full flex-grow">
                 <div className="grid lg:grid-cols-[1fr_2fr_1fr] gap-6 items-start">
                     <div className="flex flex-col gap-6">
                         <PlayerPanel
@@ -385,6 +475,7 @@ const App: React.FC = () => {
                             isSetupPhase={false}
                             availableFactors={attacker === players[0] ? availableFactors : undefined}
                             onSelectFactor={handleSelectFactor}
+                            scoreRef={playerScoreRefs[players[0]]}
                         />
                          {numPlayers === 3 && players[2] && (
                              <PlayerPanel
@@ -398,11 +489,23 @@ const App: React.FC = () => {
                                 isSetupPhase={false}
                                 availableFactors={attacker === players[2] ? availableFactors : undefined}
                                 onSelectFactor={handleSelectFactor}
+                                scoreRef={playerScoreRefs[players[2]]}
                             />
                         )}
                     </div>
                     
-                    <div className="lg:col-start-2">
+                    <div className="lg:col-start-2 space-y-4">
+                      {attackingFactor && defender && gameState === 'playing' && (
+                        <div 
+                          className="p-4 bg-yellow-100 dark:bg-yellow-900/50 border-2 border-yellow-400 rounded-lg text-center animate-fade-in-down"
+                          role="alert"
+                          aria-live="polite"
+                        >
+                          <p className="text-lg font-semibold text-yellow-800 dark:text-yellow-200">
+                            {playerConfigs[defender].name} cherche un nombre dans la table de <strong className="text-3xl font-black">{attackingFactor}</strong>
+                          </p>
+                        </div>
+                      )}
                       <GameBoardComponent
                           board={board}
                           numPlayers={numPlayers}
@@ -413,6 +516,8 @@ const App: React.FC = () => {
                           scorePopup={scorePopup}
                           incorrectCell={incorrectCell}
                           highlightedLines={highlightedLines}
+                          gameBoardRef={gameBoardRef}
+                          onPositionerReady={(utils) => { gridUtilsRef.current = utils; }}
                       />
                     </div>
                     
@@ -428,15 +533,56 @@ const App: React.FC = () => {
                              isSetupPhase={false}
                             availableFactors={attacker === players[1] ? availableFactors : undefined}
                             onSelectFactor={handleSelectFactor}
+                            scoreRef={playerScoreRefs[players[1]]}
                         />
                     </div>
                 </div>
-            </div>
+            </main>
+            
+            <footer className="max-w-7xl mx-auto w-full text-center pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="p-3 bg-white dark:bg-slate-800 rounded-lg shadow-md text-left order-2 sm:order-1 flex-grow sm:flex-grow-0">
+                    <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200">Rappel des points bonus :</h4>
+                    <div className="text-xs text-slate-600 dark:text-slate-400 flex flex-col sm:flex-row sm:gap-x-2 flex-wrap">
+                        <span>Alignement de 3 : <strong className="text-green-500">+1 pt</strong></span>
+                        <span className="hidden sm:inline">|</span>
+                        <span>Alignement de 4 : <strong className="text-green-500">+3 pts</strong></span>
+                        <span className="hidden sm:inline">|</span>
+                        <span>Alignement de 5 : <strong className="text-green-500">+5 pts</strong></span>
+                        {numPlayers === 3 && (
+                            <>
+                                <span className="hidden sm:inline">|</span>
+                                <span>Alignement de 6 : <strong className="text-green-500">+7 pts</strong></span>
+                                <span className="hidden sm:inline">|</span>
+                                <span>Alignement de 7 : <strong className="text-green-500">+10 pts</strong></span>
+                            </>
+                        )}
+                    </div>
+                </div>
+                <button
+                    onClick={handleNewGame}
+                    className="px-8 py-4 text-xl font-bold text-white bg-indigo-600 rounded-lg shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300 order-1 sm:order-2"
+                >
+                    Nouvelle Partie
+                </button>
+            </footer>
+
+            {flyingPoints.map(p => (
+                <FlyingPoint
+                    key={p.id}
+                    id={p.id}
+                    from={p.from}
+                    to={p.to}
+                    delay={p.delay}
+                    onComplete={p.onComplete}
+                />
+            ))}
 
             {selectedCell && defender && (
                 <FactorModal
                     isOpen={isFactorModalOpen}
-                    onClose={() => setIsFactorModalOpen(false)}
+                    onClose={() => {
+                        setIsFactorModalOpen(false);
+                    }}
                     numberToSolve={board[selectedCell.r][selectedCell.c].number}
                     attackingFactor={attackingFactor!}
                     minFactor={levelConfig.defenderRange.min}

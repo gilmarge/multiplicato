@@ -42,12 +42,17 @@ const FactorModal: React.FC<FactorModalProps> = ({ isOpen, numberToSolve, attack
     // The parent component will handle success/failure and closing the modal.
     onSubmit(f2);
   };
-
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center transform transition-all" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Complétez la multiplication :</h2>
-        <p className="text-6xl font-black text-indigo-600 dark:text-indigo-400 mb-6">{numberToSolve}</p>
+        
+        <div className="relative w-40 h-40 mx-auto mb-6 flex items-center justify-center">
+            <p className="relative text-6xl font-black text-indigo-600 dark:text-indigo-400">
+                {numberToSolve}
+            </p>
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center justify-center space-x-4">

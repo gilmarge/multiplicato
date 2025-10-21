@@ -16,10 +16,11 @@ interface PlayerPanelProps {
   onSelectFactor?: (factor: number) => void;
   onPlayerClick?: (player: Player) => void;
   onNameChange?: (player: Player, newName: string) => void;
+  scoreRef?: React.Ref<HTMLSpanElement>;
 }
 
 const RobotIcon = () => (
-    <svg xmlns="http://www.w.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 4a1 1 0 100 2h6a1 1 0 100-2H6z" clipRule="evenodd" />
         <path d="M9 4.5a1 1 0 11-2 0 1 1 0 012 0zM13 4.5a1 1 0 11-2 0 1 1 0 012 0z" />
     </svg>
@@ -32,7 +33,7 @@ const HumanIcon = () => (
 );
 
 
-const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, displayName, score, role, isActive, moves, isAi, isSetupPhase, availableFactors, onSelectFactor, onPlayerClick, onNameChange }) => {
+const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, displayName, score, role, isActive, moves, isAi, isSetupPhase, availableFactors, onSelectFactor, onPlayerClick, onNameChange, scoreRef }) => {
   const playerMoves = moves.filter(move => move.player === player);
   const color = PLAYER_COLORS[player];
   const isChoosingFactor = role === 'attacker' && !!onSelectFactor;
@@ -61,7 +62,7 @@ const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, displayName, score, r
                 <h3 className={`text-xl font-bold ${color.text}`}>{player}</h3>
                 <div className="flex items-center gap-2 text-sm font-semibold px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                     {isAi ? <RobotIcon /> : <HumanIcon />}
-                    <span>{isAi ? 'IA' : 'Humain'}</span>
+                    <span>{isAi ? 'Ordinateur' : 'Humain'}</span>
                 </div>
             </div>
             <div className="space-y-1">
@@ -81,7 +82,7 @@ const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, displayName, score, r
                     placeholder="Entrez un nom"
                 />
             </div>
-             <p className="text-xs text-center text-slate-500 dark:text-slate-400 pt-1">Cliquez pour changer le type (Humain/IA)</p>
+             <p className="text-xs text-center text-slate-500 dark:text-slate-400 pt-1">Cliquez pour changer le type (Humain/Ordinateur)</p>
         </div>
     );
   }
@@ -109,7 +110,7 @@ const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, displayName, score, r
                         {role === 'attacker' ? 'Attaquant' : 'Défenseur'}
                     </span>
                 )}
-                <AnimatedScore targetScore={score} />
+                <AnimatedScore targetScore={score} ref={scoreRef} />
             </div>
           </div>
         </div>
@@ -130,7 +131,10 @@ const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, displayName, score, r
                   ))}
                 </div>
               ) : (
-                 <p className="text-slate-500 dark:text-slate-400 italic text-sm">Aucune table disponible.</p>
+                <div className="text-center p-2 bg-slate-100 dark:bg-slate-700 rounded-md">
+                    <p className="text-slate-600 dark:text-slate-300 font-semibold">Aucune table jouable !</p>
+                    <p className="text-slate-500 dark:text-slate-400 italic text-sm mt-1">Il n'y a plus de multiples disponibles pour vos tables. Le tour va passer automatiquement.</p>
+                </div>
               )}
             </div>
           )}

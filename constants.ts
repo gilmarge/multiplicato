@@ -19,5 +19,7 @@ export const LEVEL_CONFIG: Record<number, {
 export const POINTS_MAP: { [key: number]: number } = {
   3: 1,
   4: 3,
-  5: 10,
+  5: 5,
+  6: 7,
+  7: 10,
 };

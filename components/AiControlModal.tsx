@@ -30,9 +30,9 @@ const AiControlModal: React.FC<AiControlModalProps> = ({ isOpen, onClose, player
   };
   
   const difficultyDescriptions: Record<AiDifficulty, string> = {
-    1: "Niveau 1 : L'IA choisit ses coups au hasard.",
-    2: "Niveau 2 : L'IA essaie de faire des alignements de 3 jetons.",
-    3: "Niveau 3 : L'IA joue pour gagner et essaie de bloquer l'adversaire."
+    1: "Niveau 1 : L'ordinateur choisit ses coups au hasard.",
+    2: "Niveau 2 : L'ordinateur essaie de faire des alignements de 3 jetons.",
+    3: "Niveau 3 : L'ordinateur joue pour gagner et essaie de bloquer l'adversaire."
   };
 
   return (
@@ -57,7 +57,7 @@ const AiControlModal: React.FC<AiControlModalProps> = ({ isOpen, onClose, player
 
           <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-700 rounded-lg">
             <span className={`text-lg font-medium ${!isAiChangeable ? 'text-slate-400 dark:text-slate-500' : ''}`}>
-                Activer l'Intelligence Artificielle
+                Contrôlé par l'ordinateur
             </span>
             <button
               onClick={() => isAiChangeable && setIsAi(!isAi)}
@@ -71,7 +71,7 @@ const AiControlModal: React.FC<AiControlModalProps> = ({ isOpen, onClose, player
 
           {isAi && (
             <div className="space-y-4 animate-fade-in-down">
-              <h3 className="text-lg font-medium">Niveau de difficulté de l'IA</h3>
+              <h3 className="text-lg font-medium">Niveau de difficulté de l'ordinateur</h3>
               <div className="space-y-3">
                 {([1, 2, 3] as AiDifficulty[]).map(level => (
                   <button

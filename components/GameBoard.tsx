@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState, useCallback, useEffect } from 'react';
 import { GameBoard as GameBoardType, Player, WinningLine } from '../types';
 import { PLAYER_COLORS } from '../constants';
 import WinningLinesOverlay from './WinningLinesOverlay';
@@ -14,6 +14,11 @@ interface GameBoardProps {
   scorePopup: { points: number; r: number; c: number; key: number } | null;
   incorrectCell: { r: number; c: number } | null;
   highlightedLines: WinningLine[];
+  gameBoardRef: React.RefObject<HTMLDivElement>;
+  onPositionerReady: (utils: {
+    positioner: (r: number, c: number) => { top: number; left: number };
+    cellSize: number;
+  }) => void;
 }
 
 interface CellProps {
@@ -50,8 +55,7 @@ const Cell: React.FC<CellProps> = ({ number, owner, onClick, disabled, defender,
 };
 
 
-const GameBoardComponent: React.FC<GameBoardProps> = ({ board, numPlayers, winningLines, onCellClick, disabled, defender, scorePopup, incorrectCell, highlightedLines }) => {
-  const gridRef = useRef<HTMLDivElement>(null);
+const GameBoardComponent: React.FC<GameBoardProps> = ({ board, numPlayers, winningLines, onCellClick, disabled, defender, scorePopup, incorrectCell, highlightedLines, gameBoardRef, onPositionerReady }) => {
   const [cellSize, setCellSize] = useState(0);
   const [containerSize, setContainerSize] = useState({width: 0, height: 0});
   
@@ -59,7 +63,7 @@ const GameBoardComponent: React.FC<GameBoardProps> = ({ board, numPlayers, winni
   const gridSize = board.length;
 
   useLayoutEffect(() => {
-    const container = gridRef.current;
+    const container = gameBoardRef.current;
     if (!container) return;
 
     const resizeObserver = new ResizeObserver(entries => {
@@ -103,9 +107,9 @@ const GameBoardComponent: React.FC<GameBoardProps> = ({ board, numPlayers, winni
 
     resizeObserver.observe(container);
     return () => resizeObserver.disconnect();
-  }, [gridSize, isHexagonalLayout]);
+  }, [gridSize, isHexagonalLayout, gameBoardRef]);
   
-  const getCellPosition = (r: number, c: number) => {
+  const getCellPosition = useCallback((r: number, c: number) => {
       if (cellSize === 0) return { top: 0, left: 0 };
 
       if (isHexagonalLayout) {
@@ -135,14 +139,20 @@ const GameBoardComponent: React.FC<GameBoardProps> = ({ board, numPlayers, winni
             left: padding + c * totalCellAndGapSize,
         };
       }
-  }
+  }, [cellSize, isHexagonalLayout, gridSize]);
+
+  useEffect(() => {
+    if (onPositionerReady) {
+      onPositionerReady({ positioner: getCellPosition, cellSize });
+    }
+  }, [onPositionerReady, getCellPosition, cellSize]);
   
   const fontSizeClass = isHexagonalLayout ? 'text-xl' : 'text-2xl md:text-3xl';
   
   return (
     <div className={`p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-xl transition-opacity duration-300 ${disabled ? 'opacity-70' : ''}`}>
         <div 
-            ref={gridRef} 
+            ref={gameBoardRef} 
             className="relative w-full" 
             style={{ height: containerSize.height }}
         >

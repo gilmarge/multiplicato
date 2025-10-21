@@ -56,72 +56,50 @@ export const generateBoard = (level: GameLevel, gridSize: number, numPlayers: nu
   return board;
 };
 
-const scoreLine = (line: (Player | null)[]): Partial<Scores> => {
-    const scores: Partial<Scores> = {};
-    let i = 0;
-    while (i < line.length) {
-        const player = line[i];
-        if (player === null) {
-            i++;
-            continue;
-        }
+export const calculateBonusForMove = (board: GameBoard, r: number, c: number, player: Player): number => {
+    let points = 0;
+    if (!board || board.length === 0) return 0;
+    const size = board.length;
 
-        let j = i;
-        while (j < line.length && line[j] === player) {
-            j++;
-        }
+    const directions = [
+        { dr: 0, dc: 1 }, // Horizontal
+        { dr: 1, dc: 0 }, // Vertical
+        { dr: 1, dc: 1 }, // Diagonal \
+        { dr: 1, dc: -1 } // Diagonal /
+    ];
 
-        const streakLength = j - i;
-        if (streakLength >= 3) {
-            const points = POINTS_MAP[Math.min(streakLength, 5)];
-            if (points) {
-               scores[player] = (scores[player] || 0) + points;
+    directions.forEach(dir => {
+        let streak = 1;
+        // Count in one direction from the new piece
+        for (let i = 1; i < size; i++) {
+            const nr = r + i * dir.dr;
+            const nc = c + i * dir.dc;
+            if (nr >= 0 && nr < size && nc >= 0 && nc < size && board[nr][nc].owner === player) {
+                streak++;
+            } else {
+                break;
             }
         }
-        i = j;
-    }
-    return scores;
-};
+        // Count in the opposite direction from the new piece
+        for (let i = 1; i < size; i++) {
+            const nr = r - i * dir.dr;
+            const nc = c - i * dir.dc;
+            if (nr >= 0 && nr < size && nc >= 0 && nc < size && board[nr][nc].owner === player) {
+                streak++;
+            } else {
+                break;
+            }
+        }
 
-export const calculateScores = (board: GameBoard): Scores => {
-  const totalScores: Scores = { Rouge: 0, Bleu: 0, Vert: 0 };
-  if (board.length === 0) return totalScores;
-  const size = board.length;
+        if (streak >= 3) {
+            const bonus = POINTS_MAP[Math.min(streak, 7)];
+            if (bonus) {
+                points += bonus;
+            }
+        }
+    });
 
-  const updateScores = (lineScores: Partial<Scores>) => {
-    for (const player in lineScores) {
-      totalScores[player as Player] += lineScores[player as Player]!;
-    }
-  };
-
-  // Rows
-  for (let r = 0; r < size; r++) {
-    const row = board[r].map(cell => cell.owner);
-    updateScores(scoreLine(row));
-  }
-
-  // Columns
-  for (let c = 0; c < size; c++) {
-    const col = board.map(row => row[c].owner);
-    updateScores(scoreLine(col));
-  }
-
-  // Diagonals
-  for (let k = 0; k < size * 2 - 1; k++) {
-    const d1: (Player|null)[] = [];
-    const d2: (Player|null)[] = [];
-    for (let j = 0; j <= k; j++) {
-      const i = k - j;
-      if (i < size && j < size) {
-        d1.push(board[i][j].owner);
-        d2.push(board[i][size - 1 - j].owner);
-      }
-    }
-    if (d1.length >= 3) updateScores(scoreLine(d1));
-    if (d2.length >= 3) updateScores(scoreLine(d2));
-  }
-
-  return totalScores;
+    return points;
 };
 
 
