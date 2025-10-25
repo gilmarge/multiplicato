@@ -1,4 +1,4 @@
-// FIX: Import React to fix UMD global errors.
+// FIX: Import React
 import React from 'react';
 import {
   GameBoard as GameBoardType,

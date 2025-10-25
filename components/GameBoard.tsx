@@ -1,4 +1,4 @@
-// FIX: Import React to fix UMD global errors.
+// FIX: Import React
 import React from 'react';
 import { GameBoard as GameBoardType, Player, WinningLine } from '../types.ts';
 import { PLAYER_COLORS } from '../constants.ts';
