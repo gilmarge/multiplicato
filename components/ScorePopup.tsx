@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ScorePopupProps {
   points: number;
   style: React.CSSProperties;

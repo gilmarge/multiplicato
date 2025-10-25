@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// FIX: Import React to fix UMD global errors.
+import React from 'react';
 import { Player, PlayerConfig, AiDifficulty } from '../types.ts';
 
 interface AiControlModalProps {
@@ -11,11 +12,11 @@ interface AiControlModalProps {
 }
 
 const AiControlModal: React.FC<AiControlModalProps> = ({ isOpen, onClose, player, config, onSave, isAiChangeable }) => {
-  const [isAi, setIsAi] = useState(false);
-  const [difficulty, setDifficulty] = useState<AiDifficulty>(1);
-  const [name, setName] = useState('');
+  const [isAi, setIsAi] = React.useState(false);
+  const [difficulty, setDifficulty] = React.useState<AiDifficulty>(1);
+  const [name, setName] = React.useState('');
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen && config) {
       setIsAi(config.isAi);
       setDifficulty(config.difficulty);

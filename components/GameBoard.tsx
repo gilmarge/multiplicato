@@ -1,4 +1,5 @@
-import React, { useLayoutEffect, useRef, useState, useCallback, useEffect } from 'react';
+// FIX: Import React to fix UMD global errors.
+import React from 'react';
 import { GameBoard as GameBoardType, Player, WinningLine } from '../types.ts';
 import { PLAYER_COLORS } from '../constants.ts';
 import WinningLinesOverlay from './WinningLinesOverlay.tsx';
@@ -56,13 +57,13 @@ const Cell: React.FC<CellProps> = ({ number, owner, onClick, disabled, defender,
 
 
 const GameBoardComponent: React.FC<GameBoardProps> = ({ board, numPlayers, winningLines, onCellClick, disabled, defender, scorePopup, incorrectCell, highlightedLines, gameBoardRef, onPositionerReady }) => {
-  const [cellSize, setCellSize] = useState(0);
-  const [containerSize, setContainerSize] = useState({width: 0, height: 0});
+  const [cellSize, setCellSize] = React.useState(0);
+  const [containerSize, setContainerSize] = React.useState({width: 0, height: 0});
   
   const isHexagonalLayout = numPlayers === 3;
   const gridSize = board.length;
 
-  useLayoutEffect(() => {
+  React.useLayoutEffect(() => {
     const container = gameBoardRef.current;
     if (!container) return;
 
@@ -109,7 +110,7 @@ const GameBoardComponent: React.FC<GameBoardProps> = ({ board, numPlayers, winni
     return () => resizeObserver.disconnect();
   }, [gridSize, isHexagonalLayout, gameBoardRef]);
   
-  const getCellPosition = useCallback((r: number, c: number) => {
+  const getCellPosition = React.useCallback((r: number, c: number) => {
       if (cellSize === 0) return { top: 0, left: 0 };
 
       if (isHexagonalLayout) {
@@ -141,7 +142,7 @@ const GameBoardComponent: React.FC<GameBoardProps> = ({ board, numPlayers, winni
       }
   }, [cellSize, isHexagonalLayout, gridSize]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (onPositionerReady) {
       onPositionerReady({ positioner: getCellPosition, cellSize });
     }

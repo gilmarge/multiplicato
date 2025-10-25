@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+// FIX: Import React to fix UMD global errors.
+import React from 'react';
 import {
   GameBoard as GameBoardType,
   Player,
@@ -44,59 +45,59 @@ interface FlyingPointState {
 
 const App: React.FC = () => {
     // Game State
-    const [gameState, setGameState] = useState<GameState>('setup');
-    const [numPlayers, setNumPlayers] = useState(2);
-    const [players, setPlayers] = useState<Player[]>(['Rouge', 'Bleu']);
-    const [scores, setScores] = useState<Scores>({ Rouge: 0, Bleu: 0, Vert: 0 });
-    const [board, setBoard] = useState<GameBoardType>([]);
-    const [gameLevel, setGameLevel] = useState<GameLevel>(1);
-    const [gridSize, setGridSize] = useState(5);
-    const [moves, setMoves] = useState<Move[]>([]);
-    const [winningLines, setWinningLines] = useState<WinningLine[]>([]);
+    const [gameState, setGameState] = React.useState<GameState>('setup');
+    const [numPlayers, setNumPlayers] = React.useState(2);
+    const [players, setPlayers] = React.useState<Player[]>(['Rouge', 'Bleu']);
+    const [scores, setScores] = React.useState<Scores>({ Rouge: 0, Bleu: 0, Vert: 0 });
+    const [board, setBoard] = React.useState<GameBoardType>([]);
+    const [gameLevel, setGameLevel] = React.useState<GameLevel>(1);
+    const [gridSize, setGridSize] = React.useState(5);
+    const [moves, setMoves] = React.useState<Move[]>([]);
+    const [winningLines, setWinningLines] = React.useState<WinningLine[]>([]);
 
     // Turn State
-    const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-    const [attacker, setAttacker] = useState<Player | null>(null);
-    const [defender, setDefender] = useState<Player | null>(null);
-    const [attackingFactor, setAttackingFactor] = useState<number | null>(null);
-    const [selectedCell, setSelectedCell] = useState<{ r: number; c: number } | null>(null);
+    const [currentPlayerIndex, setCurrentPlayerIndex] = React.useState(0);
+    const [attacker, setAttacker] = React.useState<Player | null>(null);
+    const [defender, setDefender] = React.useState<Player | null>(null);
+    const [attackingFactor, setAttackingFactor] = React.useState<number | null>(null);
+    const [selectedCell, setSelectedCell] = React.useState<{ r: number; c: number } | null>(null);
 
     // UI State
-    const [isFactorModalOpen, setIsFactorModalOpen] = useState(false);
-    const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
-    const [isAiControlModalOpen, setIsAiControlModalOpen] = useState(false);
-    const [playerToConfigure, setPlayerToConfigure] = useState<Player | null>(null);
-    const [scorePopup, setScorePopup] = useState<{ points: number; r: number; c: number; key: number } | null>(null);
-    const [incorrectCell, setIncorrectCell] = useState<{ r: number; c: number } | null>(null);
-    const [highlightedLines, setHighlightedLines] = useState<WinningLine[]>([]);
-    const [flyingPoints, setFlyingPoints] = useState<FlyingPointState[]>([]);
+    const [isFactorModalOpen, setIsFactorModalOpen] = React.useState(false);
+    const [isRulesModalOpen, setIsRulesModalOpen] = React.useState(false);
+    const [isAiControlModalOpen, setIsAiControlModalOpen] = React.useState(false);
+    const [playerToConfigure, setPlayerToConfigure] = React.useState<Player | null>(null);
+    const [scorePopup, setScorePopup] = React.useState<{ points: number; r: number; c: number; key: number } | null>(null);
+    const [incorrectCell, setIncorrectCell] = React.useState<{ r: number; c: number } | null>(null);
+    const [highlightedLines, setHighlightedLines] = React.useState<WinningLine[]>([]);
+    const [flyingPoints, setFlyingPoints] = React.useState<FlyingPointState[]>([]);
     
     // Print State
-    const [boardForPrint, setBoardForPrint] = useState<GameBoardType | null>(null);
-    const printContainerRef = useRef<HTMLDivElement>(null);
+    const [boardForPrint, setBoardForPrint] = React.useState<GameBoardType | null>(null);
+    const printContainerRef = React.useRef<HTMLDivElement>(null);
 
     // Refs for animation
     const playerScoreRefs = {
-        Rouge: useRef<HTMLSpanElement>(null),
-        Bleu: useRef<HTMLSpanElement>(null),
-        Vert: useRef<HTMLSpanElement>(null),
+        Rouge: React.useRef<HTMLSpanElement>(null),
+        Bleu: React.useRef<HTMLSpanElement>(null),
+        Vert: React.useRef<HTMLSpanElement>(null),
     };
-    const gameBoardRef = useRef<HTMLDivElement>(null);
-    const gridUtilsRef = useRef<{
+    const gameBoardRef = React.useRef<HTMLDivElement>(null);
+    const gridUtilsRef = React.useRef<{
         positioner: (r: number, c: number) => { top: number; left: number };
         cellSize: number;
     } | null>(null);
 
     // Player Configuration
-    const [playerConfigs, setPlayerConfigs] = useState<Record<Player, PlayerConfig>>({
+    const [playerConfigs, setPlayerConfigs] = React.useState<Record<Player, PlayerConfig>>({
         Rouge: { isAi: false, difficulty: 1, name: 'Joueur 1' },
         Bleu: { isAi: false, difficulty: 1, name: 'Joueur 2' },
         Vert: { isAi: false, difficulty: 1, name: 'Joueur 3' },
     });
 
-    const levelConfig = useMemo(() => LEVEL_CONFIG[gameLevel], [gameLevel]);
+    const levelConfig = React.useMemo(() => LEVEL_CONFIG[gameLevel], [gameLevel]);
 
-    const availableFactors = useMemo(() => {
+    const availableFactors = React.useMemo(() => {
         const { attackerRange, defenderRange } = levelConfig;
         const allFactors = [];
         for (let i = attackerRange.min; i <= attackerRange.max; i++) {
@@ -129,18 +130,18 @@ const App: React.FC = () => {
         return validFactors;
     }, [levelConfig, board, gameState]);
     
-    useEffect(() => {
+    React.useEffect(() => {
         setGridSize(numPlayers === 2 ? 5 : 7);
     }, [numPlayers]);
 
-    const setupRoles = useCallback((playerIndex: number) => {
+    const setupRoles = React.useCallback((playerIndex: number) => {
         const currentAttacker = players[playerIndex % players.length];
         const currentDefender = players[(playerIndex + 1) % players.length];
         setAttacker(currentAttacker);
         setDefender(currentDefender);
     }, [players]);
 
-    const handleNewGame = useCallback(() => {
+    const handleNewGame = React.useCallback(() => {
         setGameState('setup');
         setBoard([]);
         setScores({ Rouge: 0, Bleu: 0, Vert: 0 });
@@ -171,7 +172,7 @@ const App: React.FC = () => {
         }));
     };
 
-    const nextTurn = useCallback(() => {
+    const nextTurn = React.useCallback(() => {
         setAttackingFactor(null);
         setSelectedCell(null);
         setHighlightedLines([]);
@@ -203,7 +204,7 @@ const App: React.FC = () => {
         setIsFactorModalOpen(true);
     };
 
-    const handleSubmitFactor = useCallback((factor2: number) => {
+    const handleSubmitFactor = React.useCallback((factor2: number) => {
         if (!selectedCell || !attackingFactor || !defender) return;
 
         const { r, c } = selectedCell;
@@ -294,7 +295,7 @@ const App: React.FC = () => {
         setBoardForPrint(boardToPrint);
     };
     
-    useEffect(() => {
+    React.useEffect(() => {
         if (boardForPrint && printContainerRef.current) {
             const { jsPDF } = window.jspdf;
             const elementToPrint = printContainerRef.current;
@@ -333,7 +334,7 @@ const App: React.FC = () => {
 
 
     // --- AI & Turn Management LOGIC ---
-    useEffect(() => {
+    React.useEffect(() => {
         if (gameState !== 'playing') return;
 
         // 1. Check if the current attacker has any moves. If not, skip their turn.

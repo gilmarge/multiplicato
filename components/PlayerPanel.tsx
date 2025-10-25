@@ -1,4 +1,3 @@
-import React from 'react';
 import { Player, Move, Role } from '../types.ts';
 import { PLAYER_COLORS } from '../constants.ts';
 import AnimatedScore from './AnimatedScore.tsx';

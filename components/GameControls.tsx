@@ -1,4 +1,3 @@
-import React from 'react';
 import { GameLevel } from '../types.ts';
 import { LEVEL_CONFIG } from '../constants.ts';
 

@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+// FIX: Import React to fix UMD global errors.
+import React from 'react';
 
 interface AnimatedScoreProps {
   targetScore: number;
 }
 
 const AnimatedScore = React.forwardRef<HTMLSpanElement, AnimatedScoreProps>(({ targetScore }, ref) => {
-  const [isAnimating, setIsAnimating] = useState(false);
-  const prevScoreRef = useRef(targetScore);
+  const [isAnimating, setIsAnimating] = React.useState(false);
+  const prevScoreRef = React.useRef(targetScore);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Ne déclencher l'animation de rebond que si le score augmente.
     if (targetScore > prevScoreRef.current) {
       setIsAnimating(true);

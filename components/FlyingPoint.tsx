@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+// FIX: Import React to fix UMD global errors.
+import React from 'react';
 
 interface FlyingPointProps {
   id: string;
@@ -9,11 +10,11 @@ interface FlyingPointProps {
 }
 
 const FlyingPoint: React.FC<FlyingPointProps> = ({ id, from, to, delay, onComplete }) => {
-  const [position, setPosition] = useState(from);
-  const [visible, setVisible] = useState(false);
-  const pointRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = React.useState(from);
+  const [visible, setVisible] = React.useState(false);
+  const pointRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const startTimer = setTimeout(() => {
       setVisible(true);
       // This short delay ensures the element is rendered and `visible` is true
@@ -26,7 +27,7 @@ const FlyingPoint: React.FC<FlyingPointProps> = ({ id, from, to, delay, onComple
     return () => clearTimeout(startTimer);
   }, [delay, to]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const el = pointRef.current;
     if (!el) return;
 

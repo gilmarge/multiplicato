@@ -1,4 +1,3 @@
-import React from 'react';
 import { Scores, Player } from '../types';
 import { PLAYER_COLORS } from '../constants';
 import AnimatedScore from './AnimatedScore';

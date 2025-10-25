@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+// FIX: Import React to fix UMD global errors.
+import React from 'react';
 
 interface FactorModalProps {
   isOpen: boolean;
@@ -11,11 +12,11 @@ interface FactorModalProps {
 }
 
 const FactorModal: React.FC<FactorModalProps> = ({ isOpen, numberToSolve, attackingFactor, minFactor, maxFactor, onClose, onSubmit }) => {
-  const [factor2, setFactor2] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const input2Ref = useRef<HTMLInputElement>(null);
+  const [factor2, setFactor2] = React.useState('');
+  const [error, setError] = React.useState<string | null>(null);
+  const input2Ref = React.useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen) {
       setFactor2('');
       setError(null);
