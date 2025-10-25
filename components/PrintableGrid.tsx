@@ -191,7 +191,7 @@ const PrintableGrid: React.FC<PrintableGridProps> = ({ board, levelConfig, numPl
         {/* Center Column: Grid and Info */}
         <div style={{ flex: '0 1 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', textAlign: 'center', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-            <span>Multiplicat</span>
+            <span>Multiplicato</span>
             <span style={{ fontSize: '16px', fontWeight: 'normal', color: '#555', border: '1px solid #ccc', padding: '2px 8px', borderRadius: '6px' }}>
               {numPlayers} joueurs
             </span>

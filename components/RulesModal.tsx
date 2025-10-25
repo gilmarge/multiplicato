@@ -11,7 +11,7 @@ const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 w-full max-w-lg text-slate-800 dark:text-slate-200 transform transition-all" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-3xl font-bold mb-6 text-center text-slate-900 dark:text-white">Règles du jeu Multiplicat</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center text-slate-900 dark:text-white">Règles du jeu Multiplicato</h2>
         
         <div className="space-y-4 text-left max-h-[70vh] overflow-y-auto pr-2">
           <div>

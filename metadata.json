@@ -1,5 +1,6 @@
+
 {
-  "name": "Multiplicat",
+  "name": "Multiplicato",
   "description": "A digital version of the Multiplicat math game. Players claim numbers on a grid by solving multiplication problems, aiming to get 3, 4, or 5 in a row to score points. The game supports 2 or 3 players and three difficulty levels based on multiplication tables.",
   "requestFramePermissions": []
 }

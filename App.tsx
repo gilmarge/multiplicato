@@ -383,8 +383,7 @@ const App: React.FC = () => {
             <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-4 sm:p-6 lg:p-8 flex items-center justify-center">
                 <div className="w-full max-w-4xl mx-auto space-y-8">
                    <div className="text-center">
-                        <h1 className="text-5xl font-extrabold text-slate-900 dark:text-white">Multiplicat</h1>
-                        <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">Un jeu pour apprendre les tables de multiplication</p>
+                        <h1 className="text-5xl font-extrabold text-slate-900 dark:text-white">Multiplicato</h1>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8 items-start">
