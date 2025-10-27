@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Multiplicato</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Babel to transpile JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Babel a été retiré, car la compilation se fait maintenant avant le déploiement -->
     <!-- PDF generation libs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -134,7 +133,8 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-900">
     <div id="root"></div>
-    <script type="text/babel" data-type="module" src="./index.tsx" data-presets="env,react,typescript"></script>
+    <!-- La balise de script pointe maintenant vers le fichier compilé qui sera généré -->
+    <script type="module" src="./dist/bundle.js"></script>
 <script type="module" src="/index.tsx"></script>
 </body>
 </html>
