@@ -1,3 +1,5 @@
+// Fix: Add React import to resolve UMD global errors.
+import React from 'react';
 import { Scores, Player } from '../types';
 import { PLAYER_COLORS } from '../constants';
 import AnimatedScore from './AnimatedScore';

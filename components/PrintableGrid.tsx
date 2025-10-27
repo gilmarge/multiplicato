@@ -1,3 +1,5 @@
+// Fix: Add React import to resolve UMD global errors.
+import React from 'react';
 import { GameBoard, Player } from '../types.ts';
 import { LEVEL_CONFIG, POINTS_MAP } from '../constants.ts';
 

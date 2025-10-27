@@ -1,3 +1,5 @@
+// Fix: Add React import to resolve UMD global errors.
+import React from 'react';
 import { WinningLine } from '../types.ts';
 import { PLAYER_COLORS } from '../constants.ts';
 

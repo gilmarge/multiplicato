@@ -1,3 +1,6 @@
+// Fix: Add React import to resolve UMD global errors.
+import React from 'react';
+
 interface RulesModalProps {
   isOpen: boolean;
   onClose: () => void;
